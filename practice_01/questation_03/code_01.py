@@ -18,8 +18,20 @@ def log_transformation(image):
     return np.uint8(np.clip(log_image, 0, 255))
 
 cv2.namedWindow('Live Transform')
-cv2.createTrackbar('Gamma', 'Live Transform', 10, 50, lambda x: None)
-cv2.createTrackbar('Mode', 'Live Transform', 0, 1, lambda x: None)
+cv2.createTrackbar(
+    'Gamma',
+    'Live Transform',
+    10,
+    50,
+    lambda x: None
+)
+cv2.createTrackbar(
+    'Mode',
+    'Live Transform',
+    0,
+    1,
+    lambda x: None
+)
 
 while True:
     gamma_val = cv2.getTrackbarPos('Gamma', 'Live Transform') / 10
