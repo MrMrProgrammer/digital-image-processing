@@ -2,72 +2,52 @@ import cv2
 import numpy as np
 import matplotlib.pyplot as plt
 
-# ============================
-# 1. Load image
-# ============================
-img = cv2.imread("image.png")   # آدرس تصویر را بگذارید
-if img is None:
-    raise ValueError("Image not found!")
 
-# ============================
-# 2. Convert image to grayscale
-# ============================
-gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-
-# ============================
-# 3. Manual Histogram Equalization
-# ============================
-def manual_hist_equalization(gray_img):
-    # 1. Compute histogram
-    hist, bins = np.histogram(gray_img.flatten(), 256, [0,256])
-    
-    # 2. Compute cumulative distribution function
+def manual_hist_eq(gray_img):
+    hist, bins = np.histogram(gray_img.flatten(), 256, [0, 256])
     cdf = hist.cumsum()
-    
-    # 3. Normalize CDF into [0,255]
-    cdf_masked = np.ma.masked_equal(cdf, 0)  # جلوگیری از تقسیم بر صفر
-    cdf_normalized = (cdf_masked - cdf_masked.min()) * 255 / (cdf_masked.max() - cdf_masked.min())
-    
-    # 4. Replace masked values with 0
-    lut = np.ma.filled(cdf_normalized, 0).astype('uint8')
-    
-    # 5. Map each pixel through LUT
-    equalized_img = lut[gray_img]
-    
-    return equalized_img, hist, lut
+    cdf_norm = (cdf - cdf.min()) * 255 / (cdf.max() - cdf.min())
+    cdf_norm = cdf_norm.astype('uint8')
+    equalized = cdf_norm[gray_img]
+    return equalized
 
-# اجرای الگوریتم
-gray_eq_manual, hist_before, lut = manual_hist_equalization(gray)
 
-# ============================
-# 4. Show results
-# ============================
-plt.figure(figsize=(6,6))
-plt.imshow(gray, cmap='gray')
-plt.title("Original Grayscale Image")
-plt.axis('off')
+img1 = cv2.imread('image_01.png')
+gray1 = cv2.cvtColor(img1, cv2.COLOR_BGR2GRAY)
+manual_eq1 = manual_hist_eq(gray1)
+opencv_eq1 = cv2.equalizeHist(gray1)
 
-plt.figure(figsize=(6,6))
-plt.imshow(gray_eq_manual, cmap='gray')
-plt.title("Manual Histogram Equalized Image")
-plt.axis('off')
 
-plt.figure(figsize=(8,4))
-plt.plot(hist_before)
-plt.title("Histogram Before Equalization")
-plt.xlabel("Intensity")
-plt.ylabel("Frequency")
+img2 = cv2.imread('image_02.png')
+gray2 = cv2.cvtColor(img2, cv2.COLOR_BGR2GRAY)
+manual_eq2 = manual_hist_eq(gray2)
+opencv_eq2 = cv2.equalizeHist(gray2)
 
-plt.figure(figsize=(8,4))
-plt.plot(lut)
-plt.title("CDF → LUT Mapping")
-plt.xlabel("Original Intensity")
-plt.ylabel("Mapped Intensity")
+plt.figure(figsize=(12, 8))
 
+plt.subplot(2, 3, 1)
+plt.title("Original")
+plt.imshow(gray1, cmap='gray')
+
+plt.subplot(2, 3, 2)
+plt.title("Manual EQ")
+plt.imshow(manual_eq1, cmap='gray')
+
+plt.subplot(2, 3, 3)
+plt.title("OpenCV EQ")
+plt.imshow(opencv_eq1, cmap='gray')
+
+plt.subplot(2, 3, 4)
+plt.title("Original")
+plt.imshow(gray2, cmap='gray')
+
+plt.subplot(2, 3, 5)
+plt.title("Manual EQ")
+plt.imshow(manual_eq2, cmap='gray')
+
+plt.subplot(2, 3, 6)
+plt.title("OpenCV EQ")
+plt.imshow(opencv_eq2, cmap='gray')
+
+plt.tight_layout()
 plt.show()
-
-# ============================
-# 5. Save output
-# ============================
-cv2.imwrite("gray_output.png", gray)
-cv2.imwrite("equalized_manual.png", gray_eq_manual)
