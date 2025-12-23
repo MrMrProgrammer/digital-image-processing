@@ -33,7 +33,7 @@ def adaptive_median_filter(img, Smax=7):
     return output
 
 
-img = cv2.imread("image_01.png", cv2.IMREAD_GRAYSCALE)
+img = cv2.imread("image_02.png", cv2.IMREAD_GRAYSCALE)
 
 denoised_nlm = cv2.fastNlMeansDenoising(
     img,
@@ -44,8 +44,6 @@ denoised_nlm = cv2.fastNlMeansDenoising(
 )
 
 adaptive_result = adaptive_median_filter(img, Smax=7)
-
-# median_3 = cv2.medianBlur(img, 3)
 
 plt.figure(figsize=(12, 4))
 
@@ -66,7 +64,3 @@ plt.axis("off")
 
 plt.tight_layout()
 plt.show()
-
-
-# plt.hist(img.ravel(), bins=256)
-# plt.show()
