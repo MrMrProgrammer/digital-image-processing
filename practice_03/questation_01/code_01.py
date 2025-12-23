@@ -10,12 +10,14 @@ crow, ccol = rows // 2, cols // 2
 
 def ideal_highpass_filter(shape, D0, alpha):
     rows, cols = shape
-    H = np.zeros((rows, cols), np.float32)
+    crow, ccol = rows // 2, cols // 2
+    H = np.ones((rows, cols), np.float32)
+
     for u in range(rows):
         for v in range(cols):
             D = np.sqrt((u - crow)**2 + (v - ccol)**2)
-            if D > alpha * D0:
-                H[u, v] = 1
+            if D <= D0:
+                H[u, v] = alpha
     return H
 
 def nothing(x):

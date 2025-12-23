@@ -9,24 +9,17 @@ rows, cols = img.shape
 crow, ccol = rows // 2, cols // 2
 
 
-def gaussian_highpass_filter(shape, D0):
+def gaussian_highpass_filter(shape, D0, alpha):
     rows, cols = shape
+    crow, ccol = rows // 2, cols // 2
     H = np.zeros((rows, cols), np.float32)
+
     for u in range(rows):
         for v in range(cols):
             D = np.sqrt((u - crow)**2 + (v - ccol)**2)
-            H[u, v] = 1 - np.exp(-(D**2) / (2 * (D0**2)))
-    return H
+            H_hp = 1 - np.exp(-(D**2) / (2 * (D0**2)))
+            H[u, v] = alpha + (1 - alpha) * H_hp
 
-
-def ideal_highpass_filter(shape, D0, alpha):
-    rows, cols = shape
-    H = np.zeros((rows, cols), np.float32)
-    for u in range(rows):
-        for v in range(cols):
-            D = np.sqrt((u - crow)**2 + (v - ccol)**2)
-            if D > alpha * D0:
-                H[u, v] = 1
     return H
 
 def nothing(x):
@@ -43,7 +36,7 @@ while True:
     dft = cv2.dft(img_float, flags=cv2.DFT_COMPLEX_OUTPUT)
     dft_shift = np.fft.fftshift(dft)
 
-    H = gaussian_highpass_filter(img.shape, D0)
+    H = gaussian_highpass_filter(img.shape, D0, alpha)
     H = cv2.merge([H, H])
 
     filtered = dft_shift * H
